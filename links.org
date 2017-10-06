@@ -1,0 +1,6 @@
+#+STARTUP: showall indent hidestars
+#+TITLE: Полезные ссылки:
+
+- https://habrahabr.ru/post/228021/
+- https://javatalks.ru/topics/7772
+- http://www.pvsm.ru/java/10098
