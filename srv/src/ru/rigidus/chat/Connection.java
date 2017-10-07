@@ -11,6 +11,7 @@ public class Connection extends Thread {
     private final Socket socket;
     private BufferedReader in;
     private PrintWriter out;
+    private String name;
 
     public Connection (Socket socket) {
         this.socket = socket;
@@ -26,8 +27,31 @@ public class Connection extends Thread {
 
     @Override
     public void run() {
-        // TODO
-        System.out.println("Connection->run()");
+        try {
+            System.out.println("Connection->run()");
+            out.println("# enter your name here:");
+            name = in.readLine();
+            // TODO : send presence message to others
+            System.out.println("# to all: " + name + " comes here");
+            String msg;
+            while (true) {
+                msg = in.readLine();
+                if(null == msg) {
+                    System.out.println("# srv: " + name + " - connect lost");
+                    break;
+                } else {
+                    if (msg.equals("exit")) break;
+                    // TODO : send msg to others
+                    System.out.println("<" + name + ">: " + msg);
+                }
+            }
+            // TODO: send unpresense message to others
+            System.out.println("# to all: " + name + " has left");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
     }
 
     public void close() {
