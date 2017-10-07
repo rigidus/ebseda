@@ -12,7 +12,7 @@ public class Main {
             srv.start();
             System.out.println("Server started. Press ENTER for finish");
             System.in.read();
-            srv.closeAll();
+            srv.killServerSocket();
             srv.join();
             System.out.println("Server stopped. Quit");
         } catch (IOException e) {

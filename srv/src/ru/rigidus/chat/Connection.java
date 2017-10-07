@@ -31,6 +31,7 @@ public class Connection extends Thread {
     }
 
     public void close() {
+        System.out.println("Connection->close();");
         try {
             in.close();
             out.close();

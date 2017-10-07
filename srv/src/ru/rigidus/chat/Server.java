@@ -3,7 +3,6 @@ package ru.rigidus.chat;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -13,7 +12,7 @@ public class Server extends Thread {
 
     private static List<ru.rigidus.chat.Connection> connections =
             Collections.synchronizedList(new ArrayList<ru.rigidus.chat.Connection>());
-    private static ServerSocket server;
+    private static volatile ServerSocket server;
 
     public void Server() {
         // do nothing
@@ -26,11 +25,13 @@ public class Server extends Thread {
             while (true) {
                 Socket socket = server.accept();
                 ru.rigidus.chat.Connection con = new ru.rigidus.chat.Connection(socket);
+                connections.add(con);
                 con.start();
             }
         } catch (IOException e) {
             if (e.toString().equals("java.net.SocketException: Socket closed")) {
                 System.out.println("Server`s socket terminated");
+                //closeAll();
             } else {
                 e.printStackTrace();
             }
@@ -39,13 +40,21 @@ public class Server extends Thread {
         }
     }
 
-    public void closeAll(){
+    public void killServerSocket() {
         try {
             server.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void closeAll() {
+        System.out.println("Server()->CloseAll()");
+        try {
             synchronized (this.connections) {
                 Iterator<ru.rigidus.chat.Connection> iter = this.connections.iterator();
                 while (iter.hasNext()) {
-                    ((ru.rigidus.chat.Connection) iter.next()).close();
+                    iter.next().close();
                 }
             }
         } catch (Exception e) {
