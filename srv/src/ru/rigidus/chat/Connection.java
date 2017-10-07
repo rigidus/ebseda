@@ -10,10 +10,12 @@ public class Connection extends Thread {
 
     private final Socket socket;
     private BufferedReader in;
-    private PrintWriter out;
+    public PrintWriter out;
     private String name;
+    private Server srv;
 
-    public Connection (Socket socket) {
+    public Connection (Socket socket, Server srv) {
+        this.srv = srv;
         this.socket = socket;
         try {
             in  = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -22,7 +24,6 @@ public class Connection extends Thread {
             e.printStackTrace();
             close();
         }
-
     }
 
     @Override
@@ -33,16 +34,18 @@ public class Connection extends Thread {
             name = in.readLine();
             // TODO : send presence message to others
             System.out.println("# to all: " + name + " comes here");
-            String msg;
+            String str;
             while (true) {
-                msg = in.readLine();
-                if(null == msg) {
+                str = in.readLine();
+                if(null == str) {
                     System.out.println("# srv: " + name + " - connect lost");
                     break;
                 } else {
-                    if (msg.equals("exit")) break;
+                    if (str.equals("exit")) break;
                     // TODO : send msg to others
-                    System.out.println("<" + name + ">: " + msg);
+                    Message msg = new Message(str, this.name);
+                    this.srv.send(msg);
+                    System.out.println("<" + name + ">: " + msg.text);
                 }
             }
             // TODO: send unpresense message to others

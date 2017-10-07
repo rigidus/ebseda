@@ -3,16 +3,21 @@ package ru.rigidus.chat;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class Server extends Thread {
 
-    private static List<ru.rigidus.chat.Connection> connections =
-            Collections.synchronizedList(new ArrayList<ru.rigidus.chat.Connection>());
+    private static List<ru.rigidus.chat.Connection> connections = Collections.synchronizedList(new ArrayList<ru.rigidus.chat.Connection>());
     private static volatile ServerSocket server;
+
+    public void send(Message msg) {
+        synchronized(connections) {
+            Iterator<Connection> iter = connections.iterator();
+            while(iter.hasNext()) {
+                iter.next().out.println(msg.from + ": " + msg.text);
+            }
+        }
+    }
 
     public void Server() {
         // do nothing
@@ -24,7 +29,7 @@ public class Server extends Thread {
             server = new ServerSocket(Cfg.port);
             while (true) {
                 Socket socket = server.accept();
-                ru.rigidus.chat.Connection con = new ru.rigidus.chat.Connection(socket);
+                ru.rigidus.chat.Connection con = new ru.rigidus.chat.Connection(socket, this);
                 connections.add(con);
                 con.start();
             }
